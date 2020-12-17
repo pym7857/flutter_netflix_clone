@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:netflix_clone/model/model_movie.dart';
+import 'package:netflix_clone/screen/detail_screen.dart';
 
 class CarouselImage extends StatefulWidget {
   final List<Movie> movies;
@@ -22,7 +23,8 @@ class _CarouselImageState extends State<CarouselImage> {
     super.initState();
     movies = widget.movies; // state로 관리하는 변수들의 초기값을 선언한다.
     // map을 통해 movies로 부터 원하는 값들만 모아 리스트 형태로 만든다.
-    images = movies.map((m) => Image.asset('./images/' + m.poster)).toList();
+    //images = movies.map((m) => Image.asset('./images/' + m.poster)).toList();
+    images = movies.map((m) => Image.network(m.poster)).toList();
     keywords = movies.map((m) => m.keyword).toList();
     likes = movies.map((m) => m.like).toList();
     _currentKeyword = keywords[0]; // 초기값 선언
@@ -62,8 +64,30 @@ class _CarouselImageState extends State<CarouselImage> {
                     children: <Widget>[
                       // likes[_currentPage]가 true일때는 체크 아이콘, false일때는 플러스 아이콘이 나오게 됩니다.
                       likes[_currentPage]
-                      ? IconButton(icon: Icon(Icons.check), onPressed: () {},)
-                      : IconButton(icon: Icon(Icons.add), onPressed: () {},),
+                      ? IconButton(
+                        icon: Icon(Icons.check), 
+                        onPressed: () {
+                          setState(() {
+                            likes[_currentPage] = !likes[_currentPage];
+                            movies[_currentPage].reference.update(
+                              {
+                                'like': likes[_currentPage]
+                              }
+                            );
+                          });
+                        },)
+                      : IconButton(
+                        icon: Icon(Icons.add), 
+                        onPressed: () {
+                          setState(() {
+                            likes[_currentPage] = !likes[_currentPage];
+                            movies[_currentPage].reference.update(
+                              {
+                                'like': likes[_currentPage]
+                              }
+                            );
+                          });
+                        },),
                       Text(
                         '내가 찜한 콘텐츠',
                         style: TextStyle(fontSize: 11),
@@ -99,7 +123,16 @@ class _CarouselImageState extends State<CarouselImage> {
                     children: <Widget>[
                       IconButton(
                         icon: Icon(Icons.info),
-                        onPressed: () {},
+                        onPressed: () { // 정보(info)버튼을 누르면, 해당 영화 정보가 인자로 넘어가 DetailScreen 화면이 보여집니다.
+                          // MatarialPageRoute를 통해 팝업창을 띄웁니다.
+                          Navigator.of(context).push(MaterialPageRoute<Null>(
+                            fullscreenDialog: true, 
+                            builder: (BuildContext context) {
+                              return DetailScreen(
+                                movie: movies[_currentPage],
+                              );
+                            }));
+                        },
                       ),
                       Text(
                         '정보',
